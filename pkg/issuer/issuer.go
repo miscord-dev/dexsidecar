@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -53,6 +54,14 @@ func (iss *tokenIssuer) issue(ctx context.Context, config Config) (string, int, 
 		return "", 0, fmt.Errorf("failed to send a request: %w", err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(resp.Body)
+
+		slog.Error("failed to issue access token", "body", string(b))
+
+		return "", 0, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
 
 	var token tokenResponse
 	if err := json.NewDecoder(resp.Body).Decode(&token); err != nil {
