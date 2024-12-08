@@ -121,6 +121,7 @@ func (iss *tokenIssuer) Rotate(ctx context.Context) error {
 	if expiresAt.After(iss.now().Add(config.RefreshBefore)) {
 		return nil
 	}
+	slog.Info("token is outdating", "expires_at", expiresAt, "refresh_before", config.RefreshBefore)
 
 	token, expIn, err := iss.issue(ctx, config)
 	if err != nil {

@@ -25,7 +25,9 @@ const envFromFileErefix = "dex_file_"
 var _ ConfigLoader = ConfigFromEnvs
 
 func ConfigFromEnvs() (Config, error) {
-	config := Config{}
+	config := Config{
+		Values: url.Values{},
+	}
 	for _, env := range os.Environ() {
 		key, value, err := loadFromFile(env)
 		if err != nil {

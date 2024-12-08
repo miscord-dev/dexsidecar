@@ -32,6 +32,8 @@ func main() {
 	defer cancel()
 
 	for {
+		slog.Debug("rotating token")
+
 		if err := issuer.Rotate(ctx); err != nil {
 			slog.Error("failed to rotate token", "error", err)
 		}
