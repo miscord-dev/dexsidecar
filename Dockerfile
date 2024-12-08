@@ -6,7 +6,7 @@ COPY go.mod .
 COPY cmd/ cmd/
 COPY pkg/ pkg/
 
-RUN GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o /bin/dexsidecar .
+RUN GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o /bin/dexsidecar ./cmd/dexsidecar
 
 FROM debian:bookworm-slim
 
