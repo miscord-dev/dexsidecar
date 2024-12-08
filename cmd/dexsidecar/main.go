@@ -32,11 +32,12 @@ func main() {
 	defer cancel()
 
 	for {
+		if err := issuer.Rotate(ctx); err != nil {
+			slog.Error("failed to rotate token", "error", err)
+		}
+
 		select {
 		case <-timer.C:
-			if err := issuer.Rotate(ctx); err != nil {
-				slog.Error("failed to rotate token", "error", err)
-			}
 		case <-ctx.Done():
 			return
 		}
