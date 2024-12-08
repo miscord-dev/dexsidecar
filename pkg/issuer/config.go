@@ -72,7 +72,6 @@ func loadFromEnv(env string) (key, value string, err error) {
 	}
 
 	key, value, _ = strings.Cut(after, "=")
-	key = strings.ReplaceAll(key, "_", "-")
 
 	return key, value, nil
 }
@@ -84,7 +83,6 @@ func loadFromFile(env string) (key, value string, err error) {
 	}
 
 	key, value, _ = strings.Cut(after, "=")
-	key = strings.ReplaceAll(key, "_", "-")
 
 	b, err := os.ReadFile(value)
 	if err != nil {
