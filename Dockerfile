@@ -3,6 +3,8 @@ FROM --platform=$BUILDPLATFORM golang:1.23 AS builder
 WORKDIR /workspace
 
 COPY go.mod .
+COPY go.sum .
+RUN go mod download
 COPY cmd/ cmd/
 COPY pkg/ pkg/
 
