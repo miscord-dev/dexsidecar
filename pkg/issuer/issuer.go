@@ -10,6 +10,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type Issuer interface {
@@ -72,21 +74,22 @@ func (iss *tokenIssuer) issue(ctx context.Context, config Config) (string, int, 
 }
 
 func (iss *tokenIssuer) loadTokenExp(ctx context.Context, config Config) (*time.Time, error) {
-	fp, err := os.Open(config.DstPath)
+	b, err := os.ReadFile(config.DstPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file %s: %w", config.DstPath, err)
 	}
-	defer fp.Close()
 
-	var jwt struct {
-		Exp int `json:"exp"`
-	}
-	if err := json.NewDecoder(fp).Decode(&jwt); err != nil {
-		return nil, fmt.Errorf("failed to decode jwt: %w", err)
+	var claims jwt.RegisteredClaims
+	_, err = jwt.ParseWithClaims(string(b), &claims, nil, jwt.WithoutClaimsValidation())
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse jwt: %w", err)
 	}
 
-	exp := time.Unix(int64(jwt.Exp), 0)
-	return &exp, nil
+	if claims.ExpiresAt == nil {
+		return nil, fmt.Errorf("missing expiration claim")
+	}
+
+	return &claims.ExpiresAt.Time, nil
 }
 
 func (iss *tokenIssuer) save(ctx context.Context, config Config, token string) error {
@@ -96,8 +99,9 @@ func (iss *tokenIssuer) save(ctx context.Context, config Config, token string) e
 	}
 	defer fp.Close()
 
-	if err := json.NewEncoder(fp).Encode(token); err != nil {
-		return fmt.Errorf("failed to encode token: %w", err)
+	_, err = fp.WriteString(token)
+	if err != nil {
+		return fmt.Errorf("failed to write token: %w", err)
 	}
 
 	return nil
@@ -129,7 +133,7 @@ func (iss *tokenIssuer) Rotate(ctx context.Context) error {
 	} else if expiresAt.After(iss.now().Add(config.RefreshBefore)) {
 		return nil
 	}
-	slog.Info("token is outdating or deleted", "expires_at", expiresAt, "refresh_before", config.RefreshBefore)
+	slog.Info("token is being outdated or deleted", "expires_at", expiresAt, "refresh_before", config.RefreshBefore)
 
 	token, expIn, err := iss.issue(ctx, config)
 	if err != nil {
