@@ -19,8 +19,8 @@ type Config struct {
 	RefreshBefore time.Duration
 }
 
-const envErefix = "dex_"
-const envFromFileErefix = "dex_file_"
+const envPrefix = "dex_"
+const envFromFilePrefix = "dex_file_"
 
 var _ ConfigLoader = ConfigFromEnvs
 
@@ -68,7 +68,7 @@ func ConfigFromEnvs() (Config, error) {
 }
 
 func loadFromEnv(env string) (key, value string, err error) {
-	after, found := strings.CutPrefix(env, envFromFileErefix)
+	after, found := strings.CutPrefix(env, envPrefix)
 	if !found {
 		return "", "", nil
 	}
@@ -79,7 +79,7 @@ func loadFromEnv(env string) (key, value string, err error) {
 }
 
 func loadFromFile(env string) (key, value string, err error) {
-	after, found := strings.CutPrefix(env, envFromFileErefix)
+	after, found := strings.CutPrefix(env, envFromFilePrefix)
 	if !found {
 		return "", "", nil
 	}
