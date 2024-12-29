@@ -2,6 +2,7 @@ package issuer
 
 import (
 	"fmt"
+	"log/slog"
 	"net/url"
 	"os"
 	"strings"
@@ -63,6 +64,8 @@ func ConfigFromEnvs() (Config, error) {
 	} else {
 		config.RefreshBefore = 1 * time.Hour
 	}
+
+	slog.Info("config loaded", "config", config)
 
 	return config, nil
 }
