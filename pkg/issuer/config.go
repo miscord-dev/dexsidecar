@@ -54,6 +54,9 @@ func ConfigFromEnvs() (Config, error) {
 	config.DstPath = os.Getenv("dex_access_token_file")
 	config.Endpoint = os.Getenv("dex_endpoint")
 	config.BasicAuth = os.Getenv("dex_basic_auth")
+	config.Values.Del("access_token_file")
+	config.Values.Del("endpoint")
+	config.Values.Del("basic_auth")
 
 	var err error
 	if d := os.Getenv("dex_refresh_before"); d != "" {
@@ -65,7 +68,7 @@ func ConfigFromEnvs() (Config, error) {
 		config.RefreshBefore = 1 * time.Hour
 	}
 
-	slog.Info("config loaded", "config", config)
+	slog.Debug("config loaded", "config", config)
 
 	return config, nil
 }
