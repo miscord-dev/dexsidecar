@@ -50,6 +50,7 @@ func (iss *tokenIssuer) issue(ctx context.Context, config Config) (string, int, 
 		user, password, _ := strings.Cut(config.BasicAuth, ":")
 		req.SetBasicAuth(user, password)
 	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := iss.client.Do(req)
 	if err != nil {
